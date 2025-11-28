@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tin Quiz</title>
+<style>
+    body { background: pink; font-family: Arial, sans-serif; padding: 40px; }
+    .question-box {
+        background: white; padding: 20px; border-radius: 10px;
+        max-width: 500px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    button {
+        margin: 10px 5px; padding: 10px 20px; font-size: 18px;
+        border: none; border-radius: 6px; cursor: pointer;
+        background: #ff69b4; color: white;
+    }
+</style>
+</head>
+<body>
+
+<div class="question-box" id="box">
+    <h2 id="question">hello Tin, how is your evening?</h2>
+    <div id="choices"></div>
+</div>
+
+<script>
+let answers = { q1: "", q2: "", q3: "", q4: "", final: "" };
+let pleaseSize = 20;
+
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyjDOEieQQVFdYcMoEOsCMFSh19V-Rl3kW_YpP6BXUxk9b6xTfDRE2_Qd6a9bYI5FI/exec";
+
+function sendToSheet() {
+    fetch(ENDPOINT, {
+        method: "POST",
+        body: JSON.stringify(answers),
+        headers: { "Content-Type": "application/json" }
+    });
+}
+
+function showChoices(options) {
+    const container = document.getElementById("choices");
+    container.innerHTML = "";
+    options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt.text;
+        btn.onclick = opt.action;
+        container.appendChild(btn);
+    });
+}
+
+function endLove() {
+    answers.final = "YEHEYYY I LOVE U!";
+    sendToSheet();
+    document.getElementById("box").innerHTML = "<h1>YEHEYYY I LOVE U!</h1>";
+}
+
+/* ------- QUESTIONS FLOW ------- */
+
+function askFirst() {
+    document.getElementById("question").textContent =
+        "hello Tin, how is your evening?";
+    showChoices([
+        { text: "good", action: () => { answers.q1="good"; askSecond(); }},
+        { text: "wa kat pake", action: () => { answers.q1="wa kat pake"; askSecond(); }}
+    ]);
+}
+
+function askSecond() {
+    document.getElementById("question").textContent =
+        "would u like to come sa ben and ben concert with me sa 2?";
+    showChoices([
+        { text: "yes", action: () => { answers.q2="yes"; endLove(); }},
+        { text: "no", action: () => { answers.q2="no"; noBranch1(); }}
+    ]);
+}
+
+function noBranch1() {
+    document.getElementById("question").textContent = "but- libre ko man";
+    showChoices([
+        { text: "fine", action: () => { answers.q3="fine"; endLove(); }},
+        { text: "still no", action: () => { answers.q3="still no"; noBranch2(); }}
+    ]);
+}
+
+function noBranch2() {
+    document.getElementById("question").textContent = "please";
+    showChoices([
+        { text: "fine", action: () => { answers.q4="fine"; endLove(); }},
+        { text: "no", action: noBranch3 }
+    ]);
+}
+
+function noBranch3() {
+    document.getElementById("question").textContent = "PLEASE";
+    showChoices([
+        { text: "fine", action: () => { answers.final="YEHEYYY I LOVE U!"; endLove(); }},
+        { text: "no", action: makePleaseBigger }
+    ]);
+}
+
+function makePleaseBigger() {
+    pleaseSize += 20;
+    answers.q4 = "no (looping)";
+    document.getElementById("question").style.fontSize = pleaseSize + "px";
+    document.getElementById("question").textContent = "PLEASE";
+    showChoices([
+        { text: "fine", action: () => { answers.final="YEHEYYY I LOVE U!"; endLove(); }},
+        { text: "no", action: makePleaseBigger }
+    ]);
+}
+
+askFirst();
+</script>
+
+</body>
+</html>
